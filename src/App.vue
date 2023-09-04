@@ -3,7 +3,8 @@ import stock from './components/stock.vue'
 </script>
 
 <template>
-  <div id="container">
+  <div class="container">
+    <h1 class="">StockVue App</h1>
     <stock/>
   </div>
 </template>
