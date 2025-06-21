@@ -7,15 +7,15 @@
     "preview": "vite preview --port 4173"
   },
   "dependencies": {
-    "axios": "^0.27.2",
+    "axios": "^1.10.0",
     "trading-vue-js": "^1.0.2",
     "vue": "^2.7.14",
     "vue-router": "^3.5.4"
   },
   "devDependencies": {
-    "@vitejs/plugin-legacy": "^2.0.0",
+    "@vitejs/plugin-legacy": "^6.1.1",
     "@vitejs/plugin-vue2": "^1.1.2",
     "terser": "^5.14.2",
-    "vite": "^3.0.2"
+    "vite": "^6.3.5"
   }
 }
