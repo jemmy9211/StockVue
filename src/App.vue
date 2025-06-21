@@ -1,13 +1,14 @@
-<script setup>
-import stock from './components/stock.vue'
-</script>
-
 <template>
-  <div id="container">
-    <stock/>
-  </div>
+  <RouterView />
 </template>
 
-<style scoped>
+<script setup>
+import { RouterView } from 'vue-router'
+</script>
 
+<style>
+#app {
+  height: 100vh;
+  width: 100vw;
+}
 </style>
