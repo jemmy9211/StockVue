@@ -30,9 +30,12 @@
                 <div class="suggestion-name">{{ suggestion.name }}</div>
               </div>
             </div>
-            <div v-if="isLoadingSuggestions" class="loading-suggestions">
-              <div class="loading-spinner"></div>
+            <div v-else-if="noResults && !isLoadingSuggestions && searchQuery.trim().length > 0" class="suggestions-dropdown">
+              <div class="suggestion-item" style="cursor: default; opacity:0.7;">
+                沒有符合 "{{ searchQuery.toUpperCase() }}" 的結果
+              </div>
             </div>
+            <!-- 移除遠端載入 spinner，保留結構可日後擴充 -->
           </div>
           <button @click="updateStockSymbol" class="search-button">搜尋</button>
         </div>
@@ -95,6 +98,7 @@
 import TradingVue from 'trading-vue-js';
 import axios from 'axios';
 import InvestmentAdvisor from '@/components/InvestmentAdvisor.vue';
+import { COMMON_TICKERS } from '@/data/tickers.js';
 
 export default {
   name: 'HomeView',
@@ -122,6 +126,8 @@ export default {
       isLoadingSuggestions: false,
       highlightedIndex: -1,
       searchTimeout: null,
+  // 本地搜尋相關
+  noResults: false,
       selectedChangePeriod: 1,
       changePeriods: [
         { label: '1天', value: 1 },
@@ -284,55 +290,37 @@ export default {
       this.chartHeight = window.innerHeight - 80; // Adjust height for header
     },
     async handleSearchInput() {
-      const query = this.searchQuery.trim();
-      
-      // Clear previous timeout
-      if (this.searchTimeout) {
-        clearTimeout(this.searchTimeout);
-      }
-      
-      // If query is too short, hide suggestions
-      if (query.length < 1) {
+      const query = this.searchQuery.trim().toUpperCase();
+
+      if (this.searchTimeout) clearTimeout(this.searchTimeout);
+
+      if (query.length === 0) {
         this.suggestions = [];
         this.showSuggestions = false;
+        this.noResults = false;
         return;
       }
-      
-      // Debounce the search
-      this.searchTimeout = setTimeout(async () => {
-        this.isLoadingSuggestions = true;
-        try {
-          const upperQuery = query.toUpperCase();
-          const response = await axios.get(
-            `https://api.polygon.io/v3/reference/tickers?ticker.gte=${upperQuery}&ticker.lt=${upperQuery}Z&active=true&limit=50&apiKey=Za0nOUx7I57_RcDoZWL5Y4MpwbR5WKM2`
-          );
-          
-          if (response.data && response.data.results) {
-            // Filter results to only show tickers that start with the query
-            const filteredResults = response.data.results
-              .filter(item => item.ticker.startsWith(upperQuery))
-              .slice(0, 10);
-            
-            this.suggestions = filteredResults.map(item => ({
-              symbol: item.ticker,
-              name: item.name
-            }));
-            this.showSuggestions = true;
-            this.highlightedIndex = -1;
-          }
-        } catch (error) {
-          console.error('Error fetching suggestions:', error);
-          this.suggestions = [];
-        } finally {
-          this.isLoadingSuggestions = false;
-        }
-      }, 300); // 300ms debounce
+
+      // 簡單 debounce (200ms)
+      this.searchTimeout = setTimeout(() => {
+        // 先前綴，再包含
+        const prefix = COMMON_TICKERS.filter(t => t.symbol.startsWith(query));
+        const contains = COMMON_TICKERS.filter(t => !t.symbol.startsWith(query) && t.symbol.includes(query));
+        const merged = [...prefix, ...contains].slice(0, 10);
+
+        this.suggestions = merged;
+        this.showSuggestions = merged.length > 0;
+        this.noResults = merged.length === 0;
+        this.highlightedIndex = -1;
+        this.isLoadingSuggestions = false; // 不再需要 spinner，但保留變數避免 template 錯誤
+      }, 200);
     },
     selectSuggestion(suggestion) {
       this.searchQuery = suggestion.symbol;
       this.showSuggestions = false;
       this.suggestions = [];
       this.highlightedIndex = -1;
+      this.noResults = false;
       this.updateStockSymbol();
     },
     navigateSuggestions(direction) {
@@ -354,6 +342,9 @@ export default {
       setTimeout(() => {
         this.showSuggestions = false;
         this.highlightedIndex = -1;
+        if (this.searchQuery.trim().length === 0) {
+          this.noResults = false;
+        }
       }, 200);
     },
     showSuggestionsIfAvailable() {
