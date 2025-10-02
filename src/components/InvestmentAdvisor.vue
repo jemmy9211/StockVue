@@ -184,128 +184,295 @@ export default {
 </script>
 
 <style scoped>
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(77, 182, 172, 0.3),
+                0 0 40px rgba(77, 182, 172, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(77, 182, 172, 0.5),
+                0 0 60px rgba(77, 182, 172, 0.2);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .investment-advisor {
-  background-color: #1e1e1e;
-  border-radius: 8px;
-  padding: 20px;
+  background: rgba(30, 30, 46, 0.6);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 24px;
   color: #e0e0e0;
   height: fit-content;
+  border: 1px solid rgba(77, 182, 172, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.investment-advisor:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4),
+              0 0 40px rgba(77, 182, 172, 0.15);
 }
 
 .advisor-title {
-  color: #4db6ac;
-  margin: 0 0 20px 0;
-  font-size: 1.2rem;
-  font-weight: 500;
+  background: linear-gradient(135deg, #4db6ac 0%, #26a69a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 24px 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-shadow: 0 2px 10px rgba(77, 182, 172, 0.3);
+  letter-spacing: 0.5px;
+  animation: slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .indicators-section,
 .advice-section {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .indicators-section h4,
 .advice-section h4 {
-  color: #b0b0b0;
+  color: rgba(176, 176, 176, 0.9);
   font-size: 1rem;
-  margin: 0 0 12px 0;
-  font-weight: 500;
+  margin: 0 0 16px 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.indicators-section h4::after,
+.advice-section h4::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, #4db6ac, transparent);
 }
 
 .indicator {
-  background-color: #2c2c2c;
-  border-radius: 6px;
-  padding: 12px;
-  margin-bottom: 12px;
-  border-left: 3px solid #424242;
+  background: rgba(44, 44, 60, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+  border-left: 3px solid rgba(77, 182, 172, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.indicator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(77, 182, 172, 0.1), transparent);
+  transition: left 0.6s;
+}
+
+.indicator:hover {
+  transform: translateX(5px);
+  background: rgba(44, 44, 60, 0.7);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3),
+              -5px 0 20px rgba(77, 182, 172, 0.1);
+  border-left-width: 4px;
+}
+
+.indicator:hover::before {
+  left: 100%;
 }
 
 .indicator-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
-}
-
-.indicator-name {
-  font-weight: 500;
-  color: #e0e0e0;
-}
-
-.indicator-value {
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.indicator-description {
-  font-size: 0.9rem;
-  color: #b0b0b0;
-}
-
-.advice-card {
-  background-color: #2c2c2c;
-  border-radius: 6px;
-  padding: 16px;
-  border-left: 4px solid #424242;
-}
-
-.advice-signal {
-  font-size: 1.2rem;
-  font-weight: 600;
   margin-bottom: 8px;
 }
 
+.indicator-name {
+  font-weight: 600;
+  color: #e0e0e0;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+}
+
+.indicator-value {
+  font-weight: 700;
+  font-size: 1.2rem;
+  animation: countUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.indicator-description {
+  font-size: 0.85rem;
+  color: rgba(176, 176, 176, 0.8);
+  line-height: 1.5;
+}
+
+.advice-card {
+  background: rgba(44, 44, 60, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 20px;
+  border-left: 4px solid rgba(66, 66, 66, 0.5);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s backwards;
+  position: relative;
+  overflow: hidden;
+}
+
+.advice-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(77, 182, 172, 0.1) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.advice-card:hover::before {
+  opacity: 1;
+}
+
+.advice-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.advice-signal {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  animation: countUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .advice-text {
-  color: #b0b0b0;
-  line-height: 1.4;
+  color: rgba(176, 176, 176, 0.9);
+  line-height: 1.6;
+  font-size: 0.95rem;
 }
 
 /* Signal colors */
 .bullish {
   color: #4caf50;
+  text-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
 }
 
 .bearish {
   color: #f44336;
+  text-shadow: 0 0 15px rgba(244, 67, 54, 0.5);
 }
 
 .neutral {
   color: #9e9e9e;
+  text-shadow: 0 0 15px rgba(158, 158, 158, 0.3);
 }
 
 .strong-bullish {
   border-left-color: #4caf50;
+  background: rgba(76, 175, 80, 0.05);
+  animation: glow-pulse 2s ease-in-out infinite;
 }
 
 .strong-bullish .advice-signal {
   color: #4caf50;
+  text-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
 }
 
 .strong-bearish {
   border-left-color: #f44336;
+  background: rgba(244, 67, 54, 0.05);
+  animation: glow-pulse 2s ease-in-out infinite;
 }
 
 .strong-bearish .advice-signal {
   color: #f44336;
+  text-shadow: 0 0 20px rgba(244, 67, 54, 0.6);
 }
 
 .disclaimer {
-  margin-top: 20px;
-  padding-top: 12px;
-  border-top: 1px solid #424242;
-  color: #888;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(66, 66, 66, 0.3);
+  color: rgba(136, 136, 136, 0.8);
   text-align: center;
+  font-size: 0.85rem;
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s backwards;
+}
+
+.disclaimer p {
+  margin: 0;
+  line-height: 1.5;
 }
 
 @media (max-width: 768px) {
   .investment-advisor {
-    padding: 16px;
+    padding: 18px;
   }
   
   .indicator-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    gap: 6px;
+  }
+  
+  .advisor-title {
+    font-size: 1.2rem;
+  }
+  
+  .indicator-value {
+    font-size: 1.1rem;
+  }
+  
+  .advice-signal {
+    font-size: 1.2rem;
   }
 }
 </style> 
