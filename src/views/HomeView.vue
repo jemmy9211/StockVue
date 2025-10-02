@@ -302,12 +302,18 @@ export default {
       this.searchTimeout = setTimeout(async () => {
         this.isLoadingSuggestions = true;
         try {
+          const upperQuery = query.toUpperCase();
           const response = await axios.get(
-            `https://api.polygon.io/v3/reference/tickers?search=${query}&active=true&limit=10&apiKey=Za0nOUx7I57_RcDoZWL5Y4MpwbR5WKM2`
+            `https://api.polygon.io/v3/reference/tickers?ticker.gte=${upperQuery}&ticker.lt=${upperQuery}Z&active=true&limit=50&apiKey=Za0nOUx7I57_RcDoZWL5Y4MpwbR5WKM2`
           );
           
           if (response.data && response.data.results) {
-            this.suggestions = response.data.results.map(item => ({
+            // Filter results to only show tickers that start with the query
+            const filteredResults = response.data.results
+              .filter(item => item.ticker.startsWith(upperQuery))
+              .slice(0, 10);
+            
+            this.suggestions = filteredResults.map(item => ({
               symbol: item.ticker,
               name: item.name
             }));
