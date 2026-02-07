@@ -1,116 +1,68 @@
 <template>
   <div class="investment-advisor">
     <div class="advisor-header">
-      <h3 class="advisor-title">
-        <span class="title-icon">🎯</span>
-        投資建議
-      </h3>
+      <h3 class="advisor-title">投資建議</h3>
       <div class="advisor-badge" :class="overallAdviceClass">
         {{ overallSignal }}
       </div>
     </div>
     
     <div class="indicators-section">
-      <div class="section-header">
-        <span class="section-icon">📊</span>
-        <h4>技術指標分析</h4>
-      </div>
+      <h4 class="section-title">技術指標</h4>
       
       <div class="indicator" v-if="rsi !== null">
-        <div class="indicator-icon-wrapper" :class="rsiClass">
-          <span class="indicator-emoji">📈</span>
+        <div class="indicator-header">
+          <span class="indicator-name">RSI (14)</span>
+          <span class="indicator-value" :class="rsiClass">{{ rsi }}</span>
         </div>
-        <div class="indicator-content">
-          <div class="indicator-header">
-            <span class="indicator-name">RSI (14天)</span>
-            <span class="indicator-value" :class="rsiClass">{{ rsi }}</span>
-          </div>
-          <div class="indicator-bar">
-            <div class="indicator-bar-fill" :class="rsiClass" :style="{ width: `${Math.min(rsi, 100)}%` }"></div>
-            <div class="indicator-bar-markers">
-              <span class="marker" style="left: 30%">30</span>
-              <span class="marker" style="left: 70%">70</span>
-            </div>
-          </div>
-          <div class="indicator-description">{{ rsiDescription }}</div>
+        <div class="indicator-bar">
+          <div class="indicator-bar-fill" :class="rsiClass" :style="{ width: `${Math.min(rsi, 100)}%` }"></div>
         </div>
+        <div class="indicator-desc">{{ rsiDescription }}</div>
       </div>
       
       <div class="indicator" v-if="ma50 !== null && currentPrice">
-        <div class="indicator-icon-wrapper" :class="ma50Class">
-          <span class="indicator-emoji">📉</span>
+        <div class="indicator-header">
+          <span class="indicator-name">MA50</span>
+          <span class="indicator-value" :class="ma50Class">${{ ma50 }}</span>
         </div>
-        <div class="indicator-content">
-          <div class="indicator-header">
-            <span class="indicator-name">50日均線</span>
-            <span class="indicator-value" :class="ma50Class">${{ ma50 }}</span>
-          </div>
-          <div class="ma-comparison">
-            <div class="ma-item">
-              <span class="ma-label">目前價格</span>
-              <span class="ma-value">${{ currentPrice }}</span>
-            </div>
-            <span class="ma-vs">vs</span>
-            <div class="ma-item">
-              <span class="ma-label">50日均線</span>
-              <span class="ma-value">${{ ma50 }}</span>
-            </div>
-          </div>
-          <div class="indicator-description">{{ ma50Description }}</div>
+        <div class="ma-row">
+          <span class="ma-cell"><span class="ma-label">Price</span>${{ currentPrice }}</span>
+          <span class="ma-sep">vs</span>
+          <span class="ma-cell"><span class="ma-label">MA50</span>${{ ma50 }}</span>
         </div>
+        <div class="indicator-desc">{{ ma50Description }}</div>
       </div>
       
       <div class="indicator" v-if="macd !== null && signalLine !== null">
-        <div class="indicator-icon-wrapper" :class="macdClass">
-          <span class="indicator-emoji">⚡</span>
+        <div class="indicator-header">
+          <span class="indicator-name">MACD</span>
+          <span class="indicator-value" :class="macdClass">{{ macd }}</span>
         </div>
-        <div class="indicator-content">
-          <div class="indicator-header">
-            <span class="indicator-name">MACD</span>
-            <span class="indicator-value" :class="macdClass">{{ macd }}</span>
-          </div>
-          <div class="macd-detail">
-            <div class="macd-item">
-              <span class="macd-label">MACD線</span>
-              <span class="macd-value" :class="macdClass">{{ macd }}</span>
-            </div>
-            <div class="macd-item">
-              <span class="macd-label">信號線</span>
-              <span class="macd-value">{{ signalLine }}</span>
-            </div>
-          </div>
-          <div class="indicator-description">{{ macdDescription }}</div>
+        <div class="macd-row">
+          <span class="macd-cell"><span class="macd-label">MACD</span><span :class="macdClass">{{ macd }}</span></span>
+          <span class="macd-cell"><span class="macd-label">Signal</span>{{ signalLine }}</span>
         </div>
+        <div class="indicator-desc">{{ macdDescription }}</div>
       </div>
 
       <div class="indicator no-data" v-if="rsi === null && ma50 === null && macd === null">
-        <div class="no-data-icon">📭</div>
         <div class="no-data-text">數據不足，無法計算技術指標</div>
       </div>
     </div>
     
     <div class="advice-section">
-      <div class="section-header">
-        <span class="section-icon">💡</span>
-        <h4>總體建議</h4>
-      </div>
+      <h4 class="section-title">總體建議</h4>
       <div class="advice-card" :class="overallAdviceClass">
-        <div class="advice-icon">
-          {{ adviceIcon }}
-        </div>
-        <div class="advice-content">
+        <div class="advice-main">
           <div class="advice-signal">{{ overallSignal }}</div>
           <div class="advice-text">{{ overallAdvice }}</div>
         </div>
-        <div class="advice-score">
-          <div class="score-label">信心分數</div>
-          <div class="score-value">{{ Math.abs(calculateOverallScore()) }}/3</div>
-        </div>
+        <div class="advice-score">{{ Math.abs(calculateOverallScore()) }}/3</div>
       </div>
     </div>
     
     <div class="disclaimer">
-      <span class="disclaimer-icon">⚠️</span>
       <p>此建議僅供參考，投資有風險，請謹慎評估並自行決策。</p>
     </div>
   </div>
@@ -266,83 +218,15 @@ export default {
 </script>
 
 <style scoped>
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes glow-pulse {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(77, 182, 172, 0.3),
-                0 0 40px rgba(77, 182, 172, 0.1);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(77, 182, 172, 0.5),
-                0 0 60px rgba(77, 182, 172, 0.2);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes countUp {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
+/* ========== MINIMAL INVESTMENT ADVISOR ========== */
 
 .investment-advisor {
-  background: rgba(30, 30, 46, 0.7);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 24px;
-  color: #e0e0e0;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  padding: 16px;
+  color: #c8c8c8;
   height: fit-content;
-  border: 1px solid rgba(77, 182, 172, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.investment-advisor:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4),
-              0 0 50px rgba(77, 182, 172, 0.15);
-  border-color: rgba(77, 182, 172, 0.3);
+  border: 1px solid rgba(255,255,255,0.05);
 }
 
 /* Header */
@@ -350,513 +234,202 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(77, 182, 172, 0.15);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .advisor-title {
-  background: linear-gradient(135deg, #4db6ac 0%, #26a69a 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   margin: 0;
-  font-size: 1.3rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  letter-spacing: 0.5px;
-}
-
-.title-icon {
-  font-size: 1.2rem;
-  animation: float 3s ease-in-out infinite;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #aaa;
 }
 
 .advisor-badge {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  animation: pulse 2s ease-in-out infinite;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
-.advisor-badge.strong-bullish {
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.1));
-  color: #4caf50;
-  border: 1px solid rgba(76, 175, 80, 0.4);
-}
+.advisor-badge.strong-bullish { background: rgba(76,175,80,0.1); color: #66bb6a; }
+.advisor-badge.strong-bearish { background: rgba(244,67,54,0.1); color: #ef5350; }
+.advisor-badge.bullish { background: rgba(76,175,80,0.08); color: #66bb6a; }
+.advisor-badge.bearish { background: rgba(244,67,54,0.08); color: #ef5350; }
+.advisor-badge.neutral { background: rgba(158,158,158,0.08); color: #888; }
 
-.advisor-badge.strong-bearish {
-  background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(244, 67, 54, 0.1));
-  color: #f44336;
-  border: 1px solid rgba(244, 67, 54, 0.4);
-}
-
-.advisor-badge.bullish {
-  background: rgba(76, 175, 80, 0.15);
-  color: #4caf50;
-  border: 1px solid rgba(76, 175, 80, 0.3);
-}
-
-.advisor-badge.bearish {
-  background: rgba(244, 67, 54, 0.15);
-  color: #f44336;
-  border: 1px solid rgba(244, 67, 54, 0.3);
-}
-
-.advisor-badge.neutral {
-  background: rgba(158, 158, 158, 0.15);
-  color: #9e9e9e;
-  border: 1px solid rgba(158, 158, 158, 0.3);
-}
-
-/* Section Headers */
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.section-icon {
-  font-size: 1rem;
-}
-
-.section-header h4 {
-  color: rgba(224, 224, 224, 0.9);
-  font-size: 0.9rem;
-  margin: 0;
+/* Section */
+.section-title {
+  color: #666;
+  font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  margin: 0 0 10px 0;
 }
 
-.indicators-section,
-.advice-section {
-  margin-bottom: 24px;
-}
+.indicators-section { margin-bottom: 16px; }
+.advice-section { margin-bottom: 12px; }
 
 /* Indicator Cards */
 .indicator {
-  background: rgba(44, 44, 60, 0.5);
-  backdrop-filter: blur(10px);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 12px;
-  display: flex;
-  gap: 14px;
-  border: 1px solid rgba(77, 182, 172, 0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.indicator::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(77, 182, 172, 0.08), transparent);
-  transition: left 0.6s;
-}
-
-.indicator:hover {
-  transform: translateX(5px);
-  background: rgba(44, 44, 60, 0.7);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-  border-color: rgba(77, 182, 172, 0.25);
-}
-
-.indicator:hover::before {
-  left: 100%;
-}
-
-.indicator-icon-wrapper {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  flex-shrink: 0;
-  transition: all 0.3s;
-}
-
-.indicator-icon-wrapper.bullish {
-  background: rgba(76, 175, 80, 0.15);
-  box-shadow: 0 0 15px rgba(76, 175, 80, 0.2);
-}
-
-.indicator-icon-wrapper.bearish {
-  background: rgba(244, 67, 54, 0.15);
-  box-shadow: 0 0 15px rgba(244, 67, 54, 0.2);
-}
-
-.indicator-icon-wrapper.neutral {
-  background: rgba(158, 158, 158, 0.15);
-  box-shadow: 0 0 15px rgba(158, 158, 158, 0.2);
-}
-
-.indicator-content {
-  flex: 1;
-  min-width: 0;
+  background: rgba(255,255,255,0.02);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
 }
 
 .indicator-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .indicator-name {
   font-weight: 600;
-  color: #e0e0e0;
-  font-size: 0.9rem;
-  letter-spacing: 0.3px;
+  color: #aaa;
+  font-size: 0.8rem;
 }
 
 .indicator-value {
   font-weight: 700;
-  font-size: 1.15rem;
-  animation: countUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
 }
 
 /* RSI Bar */
 .indicator-bar {
-  height: 6px;
-  background: rgba(66, 66, 66, 0.5);
-  border-radius: 3px;
-  margin-bottom: 10px;
-  position: relative;
-  overflow: visible;
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  margin-bottom: 8px;
+  overflow: hidden;
 }
 
 .indicator-bar-fill {
   height: 100%;
-  border-radius: 3px;
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 2px;
+  transition: width 0.6s ease;
 }
 
-.indicator-bar-fill.bullish {
-  background: linear-gradient(90deg, #4caf50, #81c784);
-  box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
-}
+.indicator-bar-fill.bullish { background: #66bb6a; }
+.indicator-bar-fill.bearish { background: #ef5350; }
+.indicator-bar-fill.neutral { background: #888; }
 
-.indicator-bar-fill.bearish {
-  background: linear-gradient(90deg, #f44336, #e57373);
-  box-shadow: 0 0 10px rgba(244, 67, 54, 0.4);
-}
-
-.indicator-bar-fill.neutral {
-  background: linear-gradient(90deg, #4db6ac, #80cbc4);
-  box-shadow: 0 0 10px rgba(77, 182, 172, 0.4);
-}
-
-.indicator-bar-markers {
-  position: absolute;
-  top: 10px;
-  left: 0;
-  right: 0;
-}
-
-.marker {
-  position: absolute;
-  font-size: 0.6rem;
-  color: rgba(224, 224, 224, 0.4);
-  transform: translateX(-50%);
-}
-
-/* MA Comparison */
-.ma-comparison {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  background: rgba(26, 26, 46, 0.5);
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
-.ma-item {
-  flex: 1;
-  text-align: center;
-}
-
-.ma-label {
-  display: block;
-  font-size: 0.65rem;
-  color: rgba(224, 224, 224, 0.5);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.ma-value {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #e0e0e0;
-}
-
-.ma-vs {
-  color: rgba(77, 182, 172, 0.5);
+.indicator-desc {
   font-size: 0.7rem;
-  font-weight: 600;
-}
-
-/* MACD Detail */
-.macd-detail {
-  display: flex;
-  gap: 16px;
-  padding: 10px;
-  background: rgba(26, 26, 46, 0.5);
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
-.macd-item {
-  flex: 1;
-}
-
-.macd-label {
-  display: block;
-  font-size: 0.65rem;
-  color: rgba(224, 224, 224, 0.5);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.macd-value {
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-.indicator-description {
-  font-size: 0.8rem;
-  color: rgba(176, 176, 176, 0.8);
+  color: #666;
   line-height: 1.5;
 }
 
-/* No Data State */
-.indicator.no-data {
-  justify-content: center;
+/* MA Row */
+.ma-row {
+  display: flex;
   align-items: center;
-  flex-direction: column;
-  padding: 30px;
+  gap: 8px;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+}
+.ma-cell { display: flex; flex-direction: column; flex: 1; font-weight: 600; color: #ccc; }
+.ma-label { font-size: 0.6rem; color: #555; text-transform: uppercase; margin-bottom: 2px; font-weight: 500; }
+.ma-sep { color: #444; font-size: 0.7rem; }
+
+/* MACD Row */
+.macd-row {
+  display: flex;
+  gap: 12px;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+}
+.macd-cell { flex: 1; display: flex; flex-direction: column; font-weight: 600; color: #ccc; }
+.macd-label { font-size: 0.6rem; color: #555; text-transform: uppercase; margin-bottom: 2px; font-weight: 500; }
+
+/* No Data */
+.indicator.no-data {
   text-align: center;
+  padding: 20px;
 }
-
-.no-data-icon {
-  font-size: 2rem;
-  margin-bottom: 10px;
-  opacity: 0.5;
-}
-
-.no-data-text {
-  color: rgba(224, 224, 224, 0.5);
-  font-size: 0.85rem;
-}
+.no-data-text { color: #555; font-size: 0.75rem; }
 
 /* Advice Card */
 .advice-card {
-  background: rgba(44, 44, 60, 0.5);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 20px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 6px;
+  padding: 12px;
   display: flex;
-  gap: 16px;
   align-items: flex-start;
-  border: 1px solid rgba(66, 66, 66, 0.3);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s backwards;
-  position: relative;
-  overflow: hidden;
+  gap: 12px;
+  border: 1px solid rgba(255,255,255,0.04);
 }
 
-.advice-card::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(77, 182, 172, 0.08) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.5s;
-}
-
-.advice-card:hover::before {
-  opacity: 1;
-}
-
-.advice-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-}
-
-.advice-icon {
-  font-size: 2.2rem;
-  animation: float 3s ease-in-out infinite;
-}
-
-.advice-content {
-  flex: 1;
-}
+.advice-main { flex: 1; }
 
 .advice-signal {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.advice-text {
-  color: rgba(176, 176, 176, 0.9);
-  line-height: 1.6;
   font-size: 0.85rem;
-}
-
-.advice-score {
-  text-align: center;
-  padding: 10px 14px;
-  background: rgba(26, 26, 46, 0.6);
-  border-radius: 10px;
-}
-
-.score-label {
-  font-size: 0.6rem;
-  color: rgba(224, 224, 224, 0.5);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-weight: 700;
   margin-bottom: 4px;
 }
 
-.score-value {
-  font-size: 1.1rem;
+.advice-text {
+  color: #666;
+  line-height: 1.5;
+  font-size: 0.75rem;
+}
+
+.advice-score {
+  font-size: 0.9rem;
   font-weight: 700;
-  color: #4db6ac;
+  color: #aaa;
+  white-space: nowrap;
+  padding: 4px 8px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 4px;
 }
 
-/* Advice Card Variants */
-.strong-bullish {
-  border-color: rgba(76, 175, 80, 0.4);
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(44, 44, 60, 0.5));
-}
-
-.strong-bullish .advice-signal {
-  color: #4caf50;
-  text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
-}
-
-.strong-bearish {
-  border-color: rgba(244, 67, 54, 0.4);
-  background: linear-gradient(135deg, rgba(244, 67, 54, 0.08), rgba(44, 44, 60, 0.5));
-}
-
-.strong-bearish .advice-signal {
-  color: #f44336;
-  text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);
-}
-
-.bullish .advice-signal {
-  color: #4caf50;
-}
-
-.bearish .advice-signal {
-  color: #f44336;
-}
-
-.neutral .advice-signal {
-  color: #9e9e9e;
-}
+/* Variants */
+.advice-card.strong-bullish { border-color: rgba(76,175,80,0.15); }
+.advice-card.strong-bullish .advice-signal { color: #66bb6a; }
+.advice-card.strong-bearish { border-color: rgba(244,67,54,0.15); }
+.advice-card.strong-bearish .advice-signal { color: #ef5350; }
+.advice-card.bullish .advice-signal { color: #66bb6a; }
+.advice-card.bearish .advice-signal { color: #ef5350; }
+.advice-card.neutral .advice-signal { color: #888; }
 
 /* Signal colors */
-.bullish {
-  color: #4caf50;
-  text-shadow: 0 0 12px rgba(76, 175, 80, 0.4);
-}
-
-.bearish {
-  color: #f44336;
-  text-shadow: 0 0 12px rgba(244, 67, 54, 0.4);
-}
-
-.neutral {
-  color: #9e9e9e;
-  text-shadow: 0 0 12px rgba(158, 158, 158, 0.3);
-}
+.bullish { color: #66bb6a; }
+.bearish { color: #ef5350; }
+.neutral { color: #888; }
 
 /* Disclaimer */
 .disclaimer {
-  margin-top: 20px;
-  padding: 14px;
-  background: rgba(255, 152, 0, 0.08);
-  border: 1px solid rgba(255, 152, 0, 0.2);
-  border-radius: 10px;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s backwards;
-}
-
-.disclaimer-icon {
-  font-size: 1rem;
-  flex-shrink: 0;
+  margin-top: 12px;
+  padding: 8px 10px;
+  background: rgba(255,152,0,0.04);
+  border: 1px solid rgba(255,152,0,0.08);
+  border-radius: 4px;
 }
 
 .disclaimer p {
   margin: 0;
-  color: rgba(255, 152, 0, 0.8);
-  font-size: 0.75rem;
+  color: #666;
+  font-size: 0.65rem;
   line-height: 1.5;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .investment-advisor {
-    padding: 18px;
-  }
-  
-  .advisor-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  
-  .indicator {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .indicator-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-  
-  .advisor-title {
-    font-size: 1.1rem;
-  }
-  
-  .indicator-value {
-    font-size: 1rem;
-  }
-  
-  .advice-card {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .advice-score {
-    align-self: stretch;
-  }
+  .investment-advisor { padding: 12px; }
+  .advisor-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .advice-card { flex-direction: column; }
 }
-</style> 
+</style>

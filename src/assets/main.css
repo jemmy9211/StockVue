@@ -1,58 +1,8 @@
 @import "./base.css";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Global Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
+/* ========== MINIMAL GLOBAL STYLES ========== */
 
-@keyframes slideUp {
-  from {
-    transform: translateY(30px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
-}
-
-/* Global Styles */
 * {
   margin: 0;
   padding: 0;
@@ -60,11 +10,11 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #0a0e27;
-  color: #e0e0e0;
+  background: #0c0e1a;
+  color: #c8c8c8;
   overflow: hidden;
 }
 
@@ -74,103 +24,58 @@ body {
   margin: 0;
   padding: 0;
   font-weight: normal;
-  animation: fadeIn 0.5s ease-in-out;
 }
 
-/* Links */
 a {
   text-decoration: none;
-  color: #4db6ac;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-}
-
-a::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #4db6ac, #26a69a);
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-a:hover::after {
-  width: 100%;
+  color: #aaa;
+  transition: color 0.15s;
 }
 
 a:hover {
-  color: #26a69a;
-  text-shadow: 0 0 10px rgba(77, 182, 172, 0.5);
+  color: #e0e0e0;
 }
 
-/* Selection */
 ::selection {
-  background: rgba(77, 182, 172, 0.3);
+  background: rgba(255, 255, 255, 0.15);
   color: #ffffff;
 }
 
 ::-moz-selection {
-  background: rgba(77, 182, 172, 0.3);
+  background: rgba(255, 255, 255, 0.15);
   color: #ffffff;
 }
 
-/* Custom Scrollbar */
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(26, 26, 46, 0.5);
-  border-radius: 10px;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #4db6ac 0%, #26a69a 100%);
-  border-radius: 10px;
-  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #26a69a 0%, #00897b 100%);
-  box-shadow: 0 0 10px rgba(77, 182, 172, 0.5);
+  background: rgba(255, 255, 255, 0.18);
 }
 
-/* Utility Classes */
-.glass-effect {
-  background: rgba(30, 30, 46, 0.6);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(77, 182, 172, 0.2);
-  border-radius: 12px;
-}
-
-.neon-text {
-  text-shadow: 0 0 10px rgba(77, 182, 172, 0.8),
-               0 0 20px rgba(77, 182, 172, 0.6),
-               0 0 30px rgba(77, 182, 172, 0.4);
-}
-
-.gradient-text {
-  background: linear-gradient(135deg, #4db6ac 0%, #26a69a 50%, #00897b 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Button Styles */
+/* Button base */
 button {
   font-family: 'Inter', sans-serif;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 button:active {
-  transform: scale(0.95);
+  transform: scale(0.97);
 }
 
-/* Input Styles */
+/* Input base */
 input, textarea, select {
   font-family: 'Inter', sans-serif;
 }
@@ -179,32 +84,11 @@ input:focus, textarea:focus, select:focus {
   outline: none;
 }
 
-/* Loading Animation */
-.loading {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(77, 182, 172, 0.3);
-  border-radius: 50%;
-  border-top-color: #4db6ac;
-  animation: spin 0.8s ease-in-out infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 /* Responsive Typography */
 @media (max-width: 768px) {
-  html {
-    font-size: 14px;
-  }
+  html { font-size: 14px; }
 }
 
 @media (min-width: 1920px) {
-  html {
-    font-size: 18px;
-  }
+  html { font-size: 17px; }
 }

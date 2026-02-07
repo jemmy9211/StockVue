@@ -32,7 +32,7 @@ export default {
   width: 100vw;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   overflow: hidden;
-  background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #16213e 100%);
+  background: #0c0e1a;
   position: relative;
 }
 
@@ -43,27 +43,22 @@ export default {
   width: 100%;
 }
 
-/* Smooth animations */
-* {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(26, 26, 46, 0.5);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(77, 182, 172, 0.3);
-  border-radius: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(77, 182, 172, 0.5);
+  background: rgba(255,255,255,0.18);
 }
 </style>
