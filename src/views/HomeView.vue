@@ -28,7 +28,7 @@
             <div class="provider-status">
               <span v-if="currentApiProvider === key" class="provider-badge current">使用中</span>
               <span v-else-if="provider.failCount >= 3" class="provider-badge failed">暫停</span>
-              <span v-else-if="!provider.apiKey && provider.requiresKey" class="provider-badge no-key">未設定</span>
+              <span v-else-if="!provider.apiKey && provider.requiresKey && !useProxy" class="provider-badge no-key">未設定</span>
               <span v-else class="provider-badge ready">可用</span>
             </div>
           </div>
@@ -42,7 +42,7 @@
     <!-- Header -->
     <header class="header">
       <div class="header-top">
-        <h1 class="app-title">StockVue</h1>
+        <h1 class="app-title">StockView</h1>
 
         <div class="search-area">
           <div class="search-box">
@@ -127,16 +127,16 @@
         </div>
         <div class="date-controls">
           <div class="date-presets">
-            <button @click="setDateRange('1M')" class="preset-btn">1M</button>
-            <button @click="setDateRange('3M')" class="preset-btn">3M</button>
-            <button @click="setDateRange('6M')" class="preset-btn">6M</button>
-            <button @click="setDateRange('1Y')" class="preset-btn active">1Y</button>
-            <button @click="setDateRange('YTD')" class="preset-btn">YTD</button>
+            <button @click="setDateRange('1M')" :class="['preset-btn', { active: activeDateRange === '1M' }]">1M</button>
+            <button @click="setDateRange('3M')" :class="['preset-btn', { active: activeDateRange === '3M' }]">3M</button>
+            <button @click="setDateRange('6M')" :class="['preset-btn', { active: activeDateRange === '6M' }]">6M</button>
+            <button @click="setDateRange('1Y')" :class="['preset-btn', { active: activeDateRange === '1Y' }]">1Y</button>
+            <button @click="setDateRange('YTD')" :class="['preset-btn', { active: activeDateRange === 'YTD' }]">YTD</button>
           </div>
           <div class="date-inputs">
-            <input type="date" v-model="startDate" @change="fetchStockData" class="date-input">
+            <input type="date" v-model="startDate" @change="activeDateRange = ''; fetchStockData()" class="date-input">
             <span class="date-sep">—</span>
-            <input type="date" v-model="endDate" @change="fetchStockData" class="date-input">
+            <input type="date" v-model="endDate" @change="activeDateRange = ''; fetchStockData()" class="date-input">
           </div>
         </div>
       </div>
@@ -146,11 +146,10 @@
     <div class="content-wrapper">
       <main class="main-content">
         <div class="chart-container">
-          <trading-vue
-            :data="chartData"
+          <LineChart
+            :data="ohlcv"
             :width="chartWidth"
             :height="chartHeight"
-            :color-theme="colorTheme"
           />
         </div>
         <div class="volume-bar" v-if="latestVolume">
@@ -212,9 +211,9 @@
 </template>
 
 <script>
-import TradingVue from 'trading-vue-js';
 import axios from 'axios';
 import InvestmentAdvisor from '@/components/InvestmentAdvisor.vue';
+import LineChart from '@/components/LineChart.vue';
 import { COMMON_TICKERS } from '@/data/tickers.js';
 
 const ENV = import.meta.env || {};
@@ -223,7 +222,7 @@ const ENV_USE_PROXY = ENV.VITE_USE_PROXY;
 
 export default {
   name: 'HomeView',
-  components: { TradingVue, InvestmentAdvisor },
+  components: { InvestmentAdvisor, LineChart },
   data() {
     const today = new Date();
     const lastYear = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
@@ -231,9 +230,10 @@ export default {
       useProxy: ENV_USE_PROXY === 'true' || (IS_DEV && ENV_USE_PROXY !== 'false'),
       isDev: IS_DEV,
       apiProxyBase: ENV.VITE_API_PROXY_BASE || '/api',
-      chartWidth: window.innerWidth * 0.72,
-      chartHeight: window.innerHeight - 200,
-      colorTheme: 'dark',
+      chartWidth: window.innerWidth - (window.innerWidth > 1200 ? 360 : (window.innerWidth > 992 ? 320 : 0)) - 2,
+      chartHeight: window.innerWidth <= 768
+        ? Math.min(window.innerWidth * 0.6, 320)
+        : window.innerHeight - 200,
       stockName: 'Apple Inc.',
       currentPrice: 0,
       ohlcv: [],
@@ -241,6 +241,7 @@ export default {
       endDate: today.toISOString().split('T')[0],
       stockSymbol: 'AAPL',
       searchQuery: 'AAPL',
+      activeDateRange: '1Y',
       rsi: null,
       ma50: null,
       macd: null, 
@@ -330,9 +331,6 @@ export default {
     };
   },
   computed: {
-    chartData() {
-      return { ohlcv: this.ohlcv };
-    },
     apiUrl() {
       return this.buildApiUrl(this.currentApiProvider, this.stockSymbol, this.startDate, this.endDate);
     },
@@ -428,6 +426,7 @@ export default {
       
       this.startDate = startDate.toISOString().split('T')[0];
       this.endDate = today.toISOString().split('T')[0];
+      this.activeDateRange = range;
       this.fetchStockData();
     },
     quickSelectStock(symbol) {
@@ -868,7 +867,7 @@ export default {
         const providerKey = orderedProviders[i];
         
         try {
-          console.log(`[StockVue] 嘗試 ${this.apiProviders[providerKey].name}...`);
+          console.log(`[StockView] 嘗試 ${this.apiProviders[providerKey].name}...`);
           const ohlcvData = await this.fetchFromProvider(providerKey);
           
           // 成功！
@@ -897,7 +896,7 @@ export default {
           return;
           
         } catch (error) {
-          console.warn(`[StockVue] ${this.apiProviders[providerKey].name} 失敗:`, error.message);
+          console.warn(`[StockView] ${this.apiProviders[providerKey].name} 失敗:`, error.message);
           
           // 記錄失敗
           this.apiProviders[providerKey].failCount++;
@@ -983,8 +982,12 @@ export default {
       this.fetchStockData();
     },
     handleResize() {
-      this.chartWidth = window.innerWidth * 0.72;
-      this.chartHeight = window.innerHeight - 200;
+      const w = window.innerWidth;
+      const sidebarWidth = w > 1200 ? 360 : (w > 992 ? 320 : 0);
+      this.chartWidth = w - sidebarWidth - 2;
+      this.chartHeight = w <= 768
+        ? Math.min(w * 0.6, 320)
+        : window.innerHeight - 200;
     },
     handleSearchInput() {
       const raw = this.searchQuery.trim();
@@ -1590,7 +1593,6 @@ export default {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1px;
   background: rgba(18, 18, 32, 0.6);
   padding: 12px;
   gap: 12px;
@@ -1680,23 +1682,109 @@ export default {
 }
 
 @media (max-width: 992px) {
-  .content-wrapper { grid-template-columns: 1fr; }
+  .content-wrapper {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
   .sidebar {
-    max-height: 400px;
+    max-height: 260px;
     flex-direction: row;
     overflow-x: auto;
+    padding: 8px;
+    gap: 8px;
+    -webkit-overflow-scrolling: touch;
   }
-  .sidebar > * { min-width: 320px; }
+  .sidebar > * { min-width: 260px; flex-shrink: 0; }
 }
 
 @media (max-width: 768px) {
-  .header-top { flex-wrap: wrap; height: auto; padding: 8px 0; gap: 8px; }
+  .stock-view { overflow-y: auto; overflow-x: hidden; }
+
+  .header { padding: 0 12px; }
+  .header-top {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 8px 0;
+    gap: 6px;
+  }
+  .app-title { font-size: 0.9rem; }
   .search-area { max-width: 100%; order: 2; flex-basis: 100%; }
-  .header-meta { display: flex; width: 100%; justify-content: space-between; }
+  .search-input { font-size: 0.85rem; padding: 9px 36px 9px 32px; }
+  .header-meta {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    gap: 6px;
+  }
   .quick-stocks { display: none; }
-  .header-info { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .stock-summary { flex-wrap: wrap; }
-  .date-controls { flex-wrap: wrap; }
-  .api-status { margin: 0; }
+
+  .header-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 6px 0;
+  }
+  .stock-summary { flex-wrap: wrap; gap: 8px; }
+  .stock-symbol-display { font-size: 1rem; }
+  .stock-price { font-size: 1rem; }
+  .stock-change { font-size: 0.8rem; }
+
+  .date-controls { flex-wrap: wrap; gap: 6px; width: 100%; }
+  .date-presets { flex-wrap: wrap; gap: 3px; }
+  .date-inputs { width: 100%; }
+  .date-input { flex: 1; min-width: 0; }
+
+  .content-wrapper {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    overflow-y: auto;
+    flex-grow: 1;
+  }
+  .main-content { min-height: 0; }
+
+  .volume-bar { gap: 12px; padding: 6px 12px; font-size: 0.7rem; }
+
+  .sidebar {
+    max-height: none;
+    flex-direction: column;
+    overflow-x: visible;
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  .sidebar > * { min-width: 0; }
+
+  .api-status { margin: 0; font-size: 0.65rem; }
+  .api-status-text { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+
+  .provider-panel {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    border-radius: 12px 12px 0 0;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .error-toast {
+    left: 12px;
+    right: 12px;
+    transform: none;
+    max-width: 100%;
+    font-size: 0.75rem;
+  }
+
+  .suggestions-dropdown { max-height: 240px; }
+}
+
+@media (max-width: 480px) {
+  .header { padding: 0 8px; }
+  .stock-summary { gap: 6px; }
+  .stock-name-display { display: none; }
+  .change-periods { display: none; }
+  .preset-btn { padding: 4px 10px; font-size: 0.7rem; }
+  .date-inputs { font-size: 0.65rem; }
+  .date-input { padding: 4px 4px; font-size: 0.65rem; }
 }
 </style>

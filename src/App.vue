@@ -36,6 +36,10 @@ export default {
   position: relative;
 }
 
+@media (max-width: 768px) {
+  #app { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+}
+
 .app-content {
   position: relative;
   z-index: 1;
